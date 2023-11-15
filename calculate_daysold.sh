@@ -1,10 +1,9 @@
 #!/bin/bash
-## Script estimates how many space would be reclaimed for specific share and adjusts daysold parameter to met free space criteria
+## Script estimates how many space would be reclaimed for specific share and adjusts daysold parameter met free space criteria
 ## AUTHOR: Freender
 ## https://github.com/freender/mover_tunning_daysold/blob/main/calculate_daysold.sh
 
 # Retention Variables
-start_retention="60" #Set how many days you would like to store files on a share
 target_space="400000000000" #Set how many free space should be available after mover runs. 400 GB by default
 
 # Share variables:
@@ -20,26 +19,40 @@ get_free_space() {
 }
 # This function calculates how many space is estimated to be reclaimed
 get_reclaimable_space() {
-    to_be_reclaimed=`find $share_path ! -mtime -$start_retention -exec ls -l {} \; -depth | grep -vFf "$ignore_file" | awk '{s+=$5} END {print s}'`
+    to_be_reclaimed=`find $share_path ! -mtime -$daysold -exec ls -l {} \; -depth | grep -vFf "$ignore_file" | awk '{s+=$5} END {print s}'`
 }
 # This function updates daysold in config file
 update_share_config(){
-    sed -i -e 's/daysold=.*/daysold="'"$start_retention"'"/g' $share_config
+    sed -i -e 's/daysold=.*/daysold="'"$daysold"'"/g' $share_config
 }
 
 # Main Script
 
-#TO DO - Read $start_retention from /boot/config/plugins/ca.mover.tuning/shareOverrideConfig/media.cfg
-#TO DO if [[ $initial_retention -ne $start_retention ]]; then update_share_config
-initial_retention=$start_retention
+# Read mover-tunning variables from config
+source $share_config 
+initial_retention=$daysold
 get_free_space
 get_reclaimable_space
 
+# Check if mover should be executed today
+if [ $free_space -gt $target_space ]
+then
+  start_retention=$((start_retention+5))
+  update_share_config
+  echo "Mover is not required. Share:" $share_path
+  exit 1
+fi 
+
+# If should - calculate new retention period
 while [[ $(($free_space + $to_be_reclaimed)) -lt $target_space ]] && [[ "$to_be_reclaimed" -gt 0  ]] ; do 
   start_retention=$((start_retention-5))
   get_reclaimable_space
 done
 
-update_share_config
+# Update config only if daysold changed 
+if [[ $initial_retention -ne $daysold ]]
+then update_share_config
+  update_share_config 
+fi 
 
-echo "Share:" $share_path "Calculated Retention=" $start_retention " Estimated Free Space=" $to_be_reclaimed
+echo "Share:" $share_path "Calculated Retention=" $daysold " Estimated Free Space=" $to_be_reclaimed
