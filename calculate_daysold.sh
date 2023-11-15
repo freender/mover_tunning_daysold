@@ -1,5 +1,5 @@
 #!/bin/bash
-## Script estimates how many space would be reclaimed for specific share and adjusts daysold parameter met free space criteria
+## Script estimates how many space would be reclaimed for specific share and adjusts daysold parameter to met free space criteria
 ## AUTHOR: Freender
 ## https://github.com/freender/mover_tunning_daysold/blob/main/calculate_daysold.sh
 
