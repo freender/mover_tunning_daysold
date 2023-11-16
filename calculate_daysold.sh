@@ -52,6 +52,9 @@ then
 fi 
 
 # Decrease $daysold if not enough space available
+daysold="365" # this is to find an optimal value and doesn't not move to much data
+get_free_space
+get_reclaimable_space
 while [[ $(($free_space + $to_be_reclaimed)) -lt $target_space ]] && [[ "$daysold" -gt 0  ]] ; do 
   daysold=$((daysold-5))
   get_reclaimable_space
