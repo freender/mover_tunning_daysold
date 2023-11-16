@@ -42,7 +42,7 @@ get_reclaimable_space
 # Increase $daysold if enough space available
 if [ $free_space -gt $target_space ]
 then
-    daysold="0" # this is to find an optimal value
+    daysold="0" # start from 0 and increase until an optimal value is found
     get_free_space
     get_reclaimable_space
     while [[ "$to_be_reclaimed" -ne 0 ]] && [[ "$daysold" -lt 365  ]] ; do 
@@ -50,12 +50,12 @@ then
       get_reclaimable_space
     done
   update_share_config
-  echo "Free space more then target space. Retention period has been updated to" $daysold "days. Share:" $share_path
+  echo "Enough space available, data mover is not required. Retention period has been increased to" $daysold "days."
   exit 1
 fi 
 
 # Decrease $daysold if not enough space available
-daysold="365" # this is to find an optimal value and doesn't not move to much data
+daysold="365" # start from 365 and decrease until an optimal value is found
 get_free_space
 get_reclaimable_space
 while [[ $(($free_space + $to_be_reclaimed)) -lt $target_space ]] && [[ "$daysold" -gt 0  ]] ; do 
@@ -65,4 +65,4 @@ done
 
 update_share_config 
  
-echo "Share:" $share_path "Calculated Retention=" $daysold " To be reclaimed=" $to_be_reclaimed
+echo "Not enough space available, Calculated Retention=" $daysold "days. To be reclaimed=" $(($to_be_reclaimed / 1000000000)) "GB"
