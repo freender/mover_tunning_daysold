@@ -34,7 +34,6 @@ initial_retention=$daysold
 get_free_space
 get_reclaimable_space
 
-echo "To be reclaimed: " $to_be_reclaimed
 # Check if mover should be executed today
 if [ $free_space -gt $target_space ]
 then
