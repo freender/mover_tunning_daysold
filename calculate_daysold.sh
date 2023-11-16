@@ -34,18 +34,25 @@ initial_retention=$daysold
 get_free_space
 get_reclaimable_space
 
+echo "To be reclaimed: " $to_be_reclaimed
 # Check if mover should be executed today
 if [ $free_space -gt $target_space ]
 then
-  start_retention=$((start_retention+5))
+  if [[ "$to_be_reclaimed" == "" ]] #In this case no file were created before retention period and enough free space available 
+    then
+    echo "Mover is not required. Share:" $share_path
+    exit 1
+  else
+  daysold=$((daysold+5))
   update_share_config
-  echo "Mover is not required. Share:" $share_path
+  echo "Mover is not required. Retention has been extended by 5 days. Share:" $share_path
   exit 1
-fi 
+  fi
+fi  
 
 # If should - calculate new retention period
 while [[ $(($free_space + $to_be_reclaimed)) -lt $target_space ]] && [[ "$to_be_reclaimed" -gt 0  ]] ; do 
-  start_retention=$((start_retention-5))
+  daysold=$((daysold-5))
   get_reclaimable_space
 done
 
