@@ -4,7 +4,7 @@
 ## https://github.com/freender/mover_tunning_daysold/blob/main/calculate_daysold.sh
 
 # Retention Variables
-target_space="500000000000" #Set how many free space should be available after mover runs. 400 GB by default
+target_space="400000000000" #Set how many free space should be available after mover runs. 400 GB by default
 
 # Share variables:
 ignore_file='/mnt/user/backup/mover-ignore/mover_ignore.txt' #File with list of directories ignored by mover
@@ -42,6 +42,9 @@ get_reclaimable_space
 # Increase $daysold if enough space available
 if [ $free_space -gt $target_space ]
 then
+    daysold="0" # this is to find an optimal value
+    get_free_space
+    get_reclaimable_space
     while [[ "$to_be_reclaimed" -ne 0 ]] && [[ "$daysold" -lt 365  ]] ; do 
       daysold=$((daysold+5))
       get_reclaimable_space
