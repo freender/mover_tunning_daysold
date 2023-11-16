@@ -19,7 +19,7 @@ get_free_space() {
 }
 # This function calculates how many space is estimated to be reclaimed
 get_reclaimable_space() {
-    to_be_reclaimed=`find $share_path ! -mtime -$daysold -exec ls -l {} \; -depth | grep -vFf "$ignore_file" | awk '{s+=$5} END {print s}'`
+    to_be_reclaimed=`find $share_path ! -mtime -$daysold -type f -printf "%s %p\n" | grep -vFf "$ignore_file" | awk '{s+=$1} END {print s}'`
 }
 # This function updates daysold in config file
 update_share_config(){
