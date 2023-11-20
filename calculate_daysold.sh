@@ -40,11 +40,11 @@ get_free_space # Calculate free space on our share
 
 
 # Prerequisites: Find max retention - when reclaimable space is 0 GB
-# we start from 0 and use +5 to speed up the process
+# we start from 0 and use +10 to speed up the process
 daysold="0" # start from 0 and increase until an optimal value is found
 get_reclaimable_space
 while [[ "$to_be_reclaimed" -ne 0 ]] && [[ "$daysold" -lt 365  ]] ; do 
-  daysold=$((daysold+5))
+  daysold=$((daysold+10))
   get_reclaimable_space
 done
     
