@@ -37,14 +37,12 @@ update_share_config(){
 source $share_config 
 initial_retention=$daysold
 get_free_space # Calculate free space on our share
-
+get_reclaimable_space # Calculate reclaimable space using retention from config
 
 # Prerequisites: Find max retention - when reclaimable space is 0 GB
-# we start from 0 and use +10 to speed up the process
-daysold="0" # start from 0 and increase until an optimal value is found
-get_reclaimable_space
+# we start from config value and increment by +5 to speed up the process
 while [[ "$to_be_reclaimed" -ne 0 ]] && [[ "$daysold" -lt 365  ]] ; do 
-  daysold=$((daysold+10))
+  daysold=$((daysold+5))
   get_reclaimable_space
 done
     
