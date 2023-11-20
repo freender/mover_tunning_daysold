@@ -1,5 +1,5 @@
 #!/bin/bash
-## Script estimates how many space would be reclaimed for specific share and adjusts daysold parameter met free space criteria
+## Script estimates how many space would be reclaimed for specific share and adjusts daysold parameter to met free space criteria
 ## AUTHOR: Freender
 ## https://github.com/freender/mover_tunning_daysold/blob/main/calculate_daysold.sh
 
@@ -36,33 +36,33 @@ update_share_config(){
 # Read mover-tunning variables from config
 source $share_config 
 initial_retention=$daysold
-get_free_space
-get_reclaimable_space
+get_free_space # Calculate free space on our share
 
-# Increase $daysold if enough space available
+
+# Prerequisites: Find max retention - when reclaimable space is 0 GB
+# we start from 0 and use +5 to speed up the process
+daysold="0" # start from 0 and increase until an optimal value is found
+get_reclaimable_space
+while [[ "$to_be_reclaimed" -ne 0 ]] && [[ "$daysold" -lt 365  ]] ; do 
+  daysold=$((daysold+5))
+  get_reclaimable_space
+done
+    
+# Case 1 - we have enough free space
+# Update config (to make sure no data is moved) and exit
 if [ $free_space -gt $target_space ]
-then
-    daysold="0" # start from 0 and increase until an optimal value is found
-    get_free_space
-    get_reclaimable_space
-    while [[ "$to_be_reclaimed" -ne 0 ]] && [[ "$daysold" -lt 365  ]] ; do 
-      daysold=$((daysold+5))
-      get_reclaimable_space
-    done
+then    
   update_share_config
   echo "Enough space available, data mover is not required. Retention period has been increased to" $daysold "days."
   exit 1
 fi 
 
-# Decrease $daysold if not enough space available
-daysold="365" # start from 365 and decrease until an optimal value is found
-get_free_space
-get_reclaimable_space
+# Case 2 - not enough free space available
+# Decrease $daysold until enough space available
 while [[ $(($free_space + $to_be_reclaimed)) -lt $target_space ]] && [[ "$daysold" -gt 0  ]] ; do 
-  daysold=$((daysold-5))
+  daysold=$((daysold-1))
   get_reclaimable_space
 done
 
 update_share_config 
- 
 echo "Not enough space available, Calculated Retention=" $daysold "days. To be reclaimed=" $(($to_be_reclaimed / 1000000000)) "GB"
