@@ -41,7 +41,7 @@ get_reclaimable_space # Calculate reclaimable space using retention from config
 
 # Prerequisites: Find max retention - when reclaimable space is 0 GB
 # we start from config value and increment by +5 to speed up the process
-while [[ "$to_be_reclaimed" -ne 0 ]] && [[ "$daysold" -lt 365  ]] ; do 
+while [[ "$to_be_reclaimed" -ne 0 ]] && [[ "$daysold" -lt 600  ]] ; do 
   daysold=$((daysold+5))
   get_reclaimable_space
 done
