@@ -4,7 +4,7 @@
 ## https://github.com/freender/mover_tunning_daysold/blob/main/calculate_daysold.sh
 
 # Retention Variables
-target_space="500000000000" #Set how many free space should be available after mover runs. 400 GB by default
+target_space="536870912000" #Set how many free space should be available after mover runs. 500 GB by default
 
 # Share variables:
 ignore_file='/mnt/user/backup/mover-ignore/mover_ignore.txt' #File with list of directories ignored by mover
