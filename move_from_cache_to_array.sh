@@ -4,10 +4,11 @@
 ## AUTHOR: Freender
 ## https://github.com/freender/mover_tunning_daysold/blob/main/move_from_cache_to_array.sh
 
+
 # Define source and destination directories
-SOURCE_DIR="/mnt/user0/media/"
-DEST_DIR="/mnt/cache/media/"
-TARGET_FREE_SPACE=$((400 * 1024 * 1024 * 1024))  # Target space in bytes
+SOURCE_DIR="/mnt/user0/media"
+DEST_DIR="/mnt/cache/media"
+TARGET_FREE_SPACE=$((500 * 1024 * 1024 * 1024))  # Target space in bytes
 
 # Calculate human-readable format for TARGET_FREE_SPACE
 TARGET_FREE_SPACE_HUMAN=$((TARGET_FREE_SPACE / 1024 / 1024 / 1024))  # Convert bytes to GB
@@ -54,8 +55,6 @@ while getopts ":td:" opt; do
 done
 shift $((OPTIND -1))
 
-# Remove trailing slash from DEST_DIR to avoid double slashes
-DEST_DIR=$(echo "$DEST_DIR" | sed 's:/*$::')
 
 echo "Starting script..."
 echo "Checking files in the source directory..."
@@ -87,13 +86,14 @@ find "$SOURCE_DIR" -type f | while IFS= read -r FILE; do
     if [ $FREE_SPACE_AFTER_MOVE -ge $TARGET_FREE_SPACE ]; then
         # Remove the leading slash from the relative path
         RELATIVE_PATH="${FILE#$SOURCE_DIR}"
-        DEST_SUBDIR="$DEST_DIR/$(dirname "$RELATIVE_PATH")"
+        DEST_SUBDIR="$DEST_DIR$(dirname "$RELATIVE_PATH")"
         
         if [ "$TEST_MODE" = true ]; then
             echo "TEST MODE: Would move file: $FILE"
             echo "TEST MODE: Would create directory: $DEST_SUBDIR"
             echo "TEST MODE: Free space after move: ${FREE_SPACE_AFTER_MOVE_HUMAN} GB"
             echo "TEST MODE: Required free space: ${TARGET_FREE_SPACE_HUMAN} GB"
+            sleep 2
         else
             echo "Moving file: $FILE"
             
