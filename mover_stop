@@ -5,7 +5,7 @@
 
 
 # Retention Variables
-target_space="429496729600" # Minimum free space after which mover runs
+target_space="600000000000" # Minimum free space after which mover runs
 target_space_human=$((target_space / 1024 / 1024 / 1024))  # Convert bytes to GB
 
 # Share variables:
@@ -35,10 +35,10 @@ is_mover_running() {
 while is_mover_running; do
   get_free_space;
 
-  # Exit if more then 400 GB available
+  # Exit if enough space available
   if [ $free_space -gt $target_space ]
   then    
-    echo "Free space is more than 400GB. Stopping mover process."
+    echo "Free space is more than $target_space_human GB. Stopping mover process."
     /usr/local/sbin/mover stop
     exit 0
   fi
